@@ -1,7 +1,15 @@
 import axios from "axios";
 
-export const API_URL = "https://backend-chat-production-9657.up.railway.app";
-
 export const api = axios.create({
-  baseURL: API_URL,
+  baseURL: "https://backend-chat-production-9657.up.railway.app",
+});
+
+api.interceptors.request.use(config => {
+  const token = localStorage.getItem("token");
+
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+
+  return config;
 });

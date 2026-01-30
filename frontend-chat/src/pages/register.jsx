@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { api } from "../services/api";
+import { Link } from "react-router-dom";
 
 function Register() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState(null);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -18,13 +20,20 @@ function Register() {
 
       console.log("Registro sucesso:", response.data);
     } catch (err) {
-      console.error("Erro no registro:", err.response?.data || err.message);
-    }
+        const message =
+          err.response?.data?.error || "Erro ao registrar";
+        setError(message);
+}
+
   }
 
   return (
+    <>
+    <div>
     <form onSubmit={handleSubmit}>
-      <h2>Register</h2>
+      <h1>Register</h1>
+
+      {error && <p style={{ color: "red" }}>{error}</p>}
 
       <input
         type="text"
@@ -49,6 +58,11 @@ function Register() {
 
       <button type="submit">Cadastrar</button>
     </form>
+    </div>
+    <div>
+      <p>Já tem uma conta? <Link to="/login">Faça login aqui!</Link></p>
+    </div>
+    </>
   );
 }
 
