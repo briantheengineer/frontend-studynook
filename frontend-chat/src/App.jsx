@@ -1,4 +1,5 @@
-import { use, useState } from 'react'
+import Login from "./pages/login.jsx";
+import Register from "./pages/register.jsx";
 import { useEffect } from "react";
 import { checkHealth } from "./services/health";
 import './App.css'
@@ -12,7 +13,10 @@ function App() {
 
 
   return (
-    <><h1>BackendChat</h1>
+    <>
+    <Login /> 
+    <hr></hr>
+    <Register />
       
     </>
   )
