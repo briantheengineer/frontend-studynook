@@ -4,3 +4,31 @@ export async function getFlashcardsByDeck(deckId) {
   const res = await api.get(`/decks/${deckId}/flashcards`);
   return res.data;
 }
+
+export async function createFlashcard(deckId, data) {
+  const res = await api.post(
+    `/decks/${deckId}/flashcards`,
+    {
+      front: data.front,
+      back: data.back
+    }
+  );
+  return res.data;
+}
+
+export async function deleteFlashcard(deckId, flashcardId) {
+  await api.delete(
+    `/decks/${deckId}/flashcards/${flashcardId}`
+  );
+}
+
+export async function updateFlashcard(deckId, flashcardId, data) {
+  const res = await api.put(
+    `/decks/${deckId}/flashcards/${flashcardId}`,
+    {
+      front: data.front,
+      back: data.back
+    }
+  );
+  return res.data;
+}

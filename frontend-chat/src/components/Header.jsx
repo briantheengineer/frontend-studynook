@@ -8,7 +8,6 @@ function Header() {
     <header>
       <nav>
         <Link to="/dashboard">Dashboard</Link> |{" "}
-        <Link to="/profile">Profile</Link> |{" "}
         <button onClick={logout}>Sair</button>
       </nav>
     </header>

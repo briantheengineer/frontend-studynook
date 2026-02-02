@@ -29,7 +29,7 @@ function Register() {
 
   return (
     <>
-    <div>
+    <div className="container">
     <form onSubmit={handleSubmit}>
       <h1>Register</h1>
 

@@ -4,8 +4,9 @@ import PrivateLayout from "./layouts/PrivateLayout";
 import Login from "./pages/login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/dashboard";
-import Profile from "./pages/profile";
 import Deck from "./pages/deck";
+import Flashcards from "./pages/Flashcards";
+import Study from "./pages/Study";
 
 
 function PrivateRoute({ children }) {
@@ -25,9 +26,15 @@ export function AppRoutes() {
 
       <Route element={<PrivateRoute><PrivateLayout /></PrivateRoute>}>
         <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/profile" element={<Profile />} />
         <Route path="/decks/:deckId" element={<Deck />} />
-      </Route>
+        <Route path="/decks/:deckId/flashcards" element={<Flashcards />}/>
+        <Route path="/decks/:deckId/study" element={<Study />}
+
+
+/>
+
+
+</Route>
 
       <Route path="*" element={<Navigate to="/login" />} />
     </Routes>

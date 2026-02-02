@@ -66,7 +66,7 @@ function Dashboard() {
   if (loading || loadingDecks) return <p>Carregando...</p>;
 
   return (
-    <div>
+    <div className="container">
       <h1>Meus Decks</h1>
 
       <form onSubmit={handleCreateDeck}>
