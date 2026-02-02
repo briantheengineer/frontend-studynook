@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 
 function Login() {
@@ -39,6 +39,7 @@ function Login() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
+        <p>Não tem cadastro? <Link to="/register"> Registre-se</Link></p>
 
         <button type="submit">Entrar</button>
       </form>

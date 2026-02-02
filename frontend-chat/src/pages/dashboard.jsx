@@ -1,48 +1,99 @@
 import { useEffect, useState } from "react";
-import { getMyFlashcards, deleteFlashcard } from "../services/flashcards";
+import { Link } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
+import { getMyDecks, createDeck, deleteDeck } from "../services/decks";
 
 function Dashboard() {
-  const [flashcards, setFlashcards] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { loading } = useAuth();
+
+  const [decks, setDecks] = useState([]);
+  const [loadingDecks, setLoadingDecks] = useState(true);
+  const [newDeckName, setNewDeckName] = useState("");
+  const [creating, setCreating] = useState(false);
 
   useEffect(() => {
-    loadFlashcards();
-  }, []);
+    if (loading) return;
 
-  async function loadFlashcards() {
-    setLoading(true);
+    async function loadDecks() {
+      try {
+        const data = await getMyDecks();
+        setDecks(data);
+      } catch (err) {
+        if (err.response?.status === 404) {
+          setDecks([]);
+        } else {
+          alert("Erro ao carregar decks");
+        }
+      } finally {
+        setLoadingDecks(false);
+      }
+    }
+
+    loadDecks();
+  }, [loading]);
+
+  async function handleCreateDeck(e) {
+    e.preventDefault();
+
+    if (!newDeckName.trim()) {
+      alert("Digite um nome para o deck");
+      return;
+    }
+
     try {
-      const data = await getMyFlashcards();
-      setFlashcards(data);
+      setCreating(true);
+      const deck = await createDeck(newDeckName);
+      setDecks(prev => [...prev, deck]);
+      setNewDeckName("");
     } catch (err) {
-      alert(err.response?.data?.error || "Erro ao carregar flashcards");
+      alert(err.response?.data?.error || "Erro ao criar deck");
     } finally {
-      setLoading(false);
+      setCreating(false);
     }
   }
 
-  async function handleDelete(id) {
-    if (!confirm("Deseja deletar este flashcard?")) return;
+  async function handleDeleteDeck(id) {
+    if (!confirm("Tem certeza que deseja deletar esse deck?")) return;
 
     try {
-      await deleteFlashcard(id);
-      setFlashcards((prev) => prev.filter((f) => f.id !== id));
-    } catch (err) {
-      alert(err.response?.data?.error || "Erro ao deletar flashcard");
+      await deleteDeck(id);
+      setDecks(prev => prev.filter(deck => deck.id !== id));
+    } catch {
+      alert("Erro ao deletar deck");
     }
   }
 
-  if (loading) return <p>Carregando...</p>;
+  if (loading || loadingDecks) return <p>Carregando...</p>;
 
   return (
     <div>
-      <h1>Meus Flashcards</h1>
-      {flashcards.length === 0 && <p>Nenhum flashcard encontrado</p>}
+      <h1>Meus Decks</h1>
+
+      <form onSubmit={handleCreateDeck}>
+        <input
+          type="text"
+          placeholder="Nome do novo deck"
+          value={newDeckName}
+          onChange={e => setNewDeckName(e.target.value)}
+        />
+        <button type="submit" disabled={creating}>
+          {creating ? "Criando..." : "Criar deck"}
+        </button>
+      </form>
+
+      <hr />
+
+      {decks.length === 0 && <p>Nenhum deck criado ainda</p>}
+
       <ul>
-        {flashcards.map((f) => (
-          <li key={f.id}>
-            <strong>{f.question}</strong> - {f.answer}{" "}
-            <button onClick={() => handleDelete(f.id)}>Deletar</button>
+        {decks.map(deck => (
+          <li key={deck.id}>
+            <Link to={`/decks/${deck.id}`}>
+              <strong>{deck.name}</strong>
+            </Link>{" "}
+            <button onClick={() => handleDeleteDeck(deck.id)}>
+              Deletar
+            </button>
           </li>
         ))}
       </ul>

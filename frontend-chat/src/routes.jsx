@@ -3,13 +3,15 @@ import { useAuth } from "./contexts/AuthContext";
 import PrivateLayout from "./layouts/PrivateLayout";
 import Login from "./pages/login";
 import Register from "./pages/Register";
-import Dashboard from "./pages/Dashboard";
+import Dashboard from "./pages/dashboard";
 import Profile from "./pages/profile";
+import Deck from "./pages/deck";
+
 
 function PrivateRoute({ children }) {
   const { isAuthenticated, loading } = useAuth();
 
-  if (loading) return <p>Carregando...</p>; // espera o token ser checado
+  if (loading) return <p>Carregando...</p>;
   if (!isAuthenticated) return <Navigate to="/login" />;
 
   return children;
@@ -24,6 +26,7 @@ export function AppRoutes() {
       <Route element={<PrivateRoute><PrivateLayout /></PrivateRoute>}>
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/decks/:deckId" element={<Deck />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/login" />} />
