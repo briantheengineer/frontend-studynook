@@ -88,10 +88,20 @@ export default function Deck() {
     }
   }
 
- useEffect(() => {
-  loadFlashcards();
-  getDeck(deckId).then(setDeck);
-}, []);
+useEffect(() => {
+  async function load() {
+    try {
+      loadFlashcards();
+      const data = await getDeck(deckId);
+      setDeck(data);
+    } catch (err) {
+      console.error(err);
+      setError("Erro ao carregar deck");
+    }
+  }
+
+  load();
+}, [deckId]);
 
 
 
