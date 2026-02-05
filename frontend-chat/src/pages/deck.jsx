@@ -6,6 +6,8 @@ import {
   deleteFlashcard,
   updateFlashcard
 } from "../services/flashcards";
+import { getDeck } from "../services/decks";
+
 
 export default function Deck() {
   const { deckId } = useParams();
@@ -18,6 +20,7 @@ export default function Deck() {
   const [error, setError] = useState("");
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [editingCard, setEditingCard] = useState(null);
+  const [deck, setDeck] = useState(null);
 
 
   async function loadFlashcards() {
@@ -37,23 +40,19 @@ export default function Deck() {
   }
 
   async function handleUpdate(e) {
-  e.preventDefault();
+    e.preventDefault();
 
-  try {
-    await updateFlashcard(deckId, editingCard.id, {
-      front,
-      back
-    });
-
-    setIsEditOpen(false);
-    setEditingCard(null);
-    setFront("");
-    setBack("");
-    loadFlashcards();
-  } catch {
-    setError("Erro ao editar flashcard");
+    try {
+      await updateFlashcard(deckId, editingCard.id, { front, back });
+      setIsEditOpen(false);
+      setEditingCard(null);
+      setFront("");
+      setBack("");
+      loadFlashcards();
+    } catch {
+      setError("Erro ao editar flashcard");
+    }
   }
-}
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -66,16 +65,10 @@ export default function Deck() {
 
     try {
       if (editingId) {
-        await updateFlashcard(deckId, editingId, {
-          front,
-          back
-        });
+        await updateFlashcard(deckId, editingId, { front, back });
         setEditingId(null);
       } else {
-        await createFlashcard(deckId, {
-          front,
-          back
-        });
+        await createFlashcard(deckId, { front, back });
       }
 
       setFront("");
@@ -95,106 +88,151 @@ export default function Deck() {
     }
   }
 
-  function handleEdit(card) {
-    setEditingId(card.id);
-    setFront(card.front);
-    setBack(card.back);
-  }
+ useEffect(() => {
+  loadFlashcards();
+  getDeck(deckId).then(setDeck);
+}, []);
 
-  useEffect(() => {
-    loadFlashcards();
-  }, []);
+
 
   return (
-    <div className="container">
-      <button onClick={() => navigate(`/decks/${deckId}/study`)}>
-          Começar a estudar</button>
+    <div className="min-h-screen bg-background text-white px-4 py-8">
+      <div className="max-w-6xl mx-auto space-y-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <h1 className="text-3xl font-bold">
+            {deck ? deck.name : "Carregando..."}
+          </h1>
 
-      <h1>Flashcards</h1>
 
-      {error && <p>{error}</p>}
-
-      <form onSubmit={handleSubmit}>
-        <input
-          placeholder="Frente"
-          value={front}
-          onChange={e => setFront(e.target.value)}
-        />
-
-        <input
-          placeholder="Verso"
-          value={back}
-          onChange={e => setBack(e.target.value)}
-        />
-
-        <button type="submit">
-          {editingId ? "Salvar edição" : "Criar flashcard"}
-        </button>
-
-        {editingId && (
           <button
-            type="button"
-            onClick={() => {
-              setEditingId(null);
-              setFront("");
-              setBack("");
-            }}
+            onClick={() => navigate(`/decks/${deckId}/study`)}
+            className="bg-primary hover:bg-primaryHover px-6 py-3 rounded-xl font-medium transition"
           >
-            Cancelar
+            Começar a estudar
           </button>
+        </div>
+
+        {error && (
+          <div className="bg-red-900/40 border border-red-800 text-red-300 px-4 py-3 rounded-xl">
+            {error}
+          </div>
         )}
-      </form>
 
-      <ul>
-      {flashcards.map((card, index) => (
-        <li key={card.id}>
-          <span>Flashcard {index + 1}</span>{" "}<br />
-          <strong>{card.front}</strong>
-          <br />
-          <span>{card.back}</span>
+        <form
+          onSubmit={handleSubmit}
+          className="bg-slate-900 border border-border rounded-2xl p-4 sm:p-6 grid gap-4 sm:grid-cols-2"
+        >
+          <input
+            placeholder="Frente"
+            value={front}
+            onChange={e => setFront(e.target.value)}
+            className="bg-slate-800 border border-border rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-primary"
+          />
 
-          <br />
+          <input
+            placeholder="Verso"
+            value={back}
+            onChange={e => setBack(e.target.value)}
+            className="bg-slate-800 border border-border rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-primary"
+          />
 
-          <button onClick={() => openEditModal(card)}>
-            Editar
-          </button>
+          <div className="sm:col-span-2 flex flex-col sm:flex-row gap-3">
+            <button
+              type="submit"
+              className="bg-primary hover:bg-primaryHover px-6 py-3 rounded-xl font-medium transition"
+            >
+              {editingId ? "Salvar edição" : "Criar flashcard"}
+            </button>
 
-          <button onClick={() => handleDelete(card.id)}>
-            Deletar
-          </button>
-        </li>
-      ))}
-    </ul>
+            {editingId && (
+              <button
+                type="button"
+                onClick={() => {
+                  setEditingId(null);
+                  setFront("");
+                  setBack("");
+                }}
+                className="bg-slate-700 hover:bg-slate-600 px-6 py-3 rounded-xl transition"
+              >
+                Cancelar
+              </button>
+            )}
+          </div>
+        </form>
 
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {flashcards.map((card, index) => (
+            <div
+              key={card.id}
+              className="bg-slate-900 border border-border rounded-2xl p-6 space-y-4"
+            >
+              <span className="text-sm text-slate-400">
+                Flashcard {index + 1}
+              </span>
+
+              <div>
+                <p className="font-semibold">{card.front}</p>
+                <p className="text-slate-400 mt-1">{card.back}</p>
+              </div>
+
+              <div className="flex gap-4">
+                <button
+                  onClick={() => openEditModal(card)}
+                  className="text-sm text-primary hover:underline"
+                >
+                  Editar
+                </button>
+
+                <button
+                  onClick={() => handleDelete(card.id)}
+                  className="text-sm text-red-400 hover:text-red-300"
+                >
+                  Deletar
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
 
       {isEditOpen && (
-        <div className="modal-backdrop">
-          <div className="modal">
-            <h3>Editar flashcard</h3>
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center px-4 z-50">
+          <div className="bg-slate-900 border border-border rounded-2xl w-full max-w-md p-6 space-y-4">
+            <h3 className="text-xl font-semibold">Editar flashcard</h3>
 
-            <form onSubmit={handleUpdate}>
+            <form onSubmit={handleUpdate} className="space-y-4">
               <input
                 value={front}
                 onChange={e => setFront(e.target.value)}
+                className="w-full bg-slate-800 border border-border rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-primary"
               />
 
               <input
                 value={back}
                 onChange={e => setBack(e.target.value)}
+                className="w-full bg-slate-800 border border-border rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-primary"
               />
 
-              <button type="submit">Salvar</button>
-              <button
-                type="button"
-                onClick={() => setIsEditOpen(false)}
-              >
-                Cancelar
-              </button>
+              <div className="flex gap-3">
+                <button
+                  type="submit"
+                  className="bg-primary hover:bg-primaryHover px-6 py-3 rounded-xl font-medium transition"
+                >
+                  Salvar
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setIsEditOpen(false)}
+                  className="bg-slate-700 hover:bg-slate-600 px-6 py-3 rounded-xl transition"
+                >
+                  Cancelar
+                </button>
+              </div>
             </form>
           </div>
         </div>
       )}
-
     </div>
   );
 }

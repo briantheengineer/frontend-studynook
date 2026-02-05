@@ -11,6 +11,11 @@ export async function createDeck(name) {
 }
 
 export async function deleteDeck(id) {
-  const res = await api.delete(`/decks/${deckId}`);
+  const res = await api.delete(`/decks/${id}`);
+  return res.data;
+}
+
+export async function getDeck(id) {
+  const res = await api.get(`/decks/${id}`);
   return res.data;
 }

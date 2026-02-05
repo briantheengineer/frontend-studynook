@@ -63,40 +63,72 @@ function Dashboard() {
     }
   }
 
-  if (loading || loadingDecks) return <p>Carregando...</p>;
+  if (loading || loadingDecks) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <p className="text-slate-400 animate-pulse">Carregando...</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="container">
-      <h1>Meus Decks</h1>
+    <div className="min-h-screen bg-background text-white px-4 py-8">
+      <div className="max-w-6xl mx-auto">
+        
+        <h1 className="text-3xl font-bold mb-8">Meus Decks</h1>
 
-      <form onSubmit={handleCreateDeck}>
-        <input
-          type="text"
-          placeholder="Nome do novo deck"
-          value={newDeckName}
-          onChange={e => setNewDeckName(e.target.value)}
-        />
-        <button type="submit" disabled={creating}>
-          {creating ? "Criando..." : "Criar deck"}
-        </button>
-      </form>
+        <form
+          onSubmit={handleCreateDeck}
+          className="bg-slate-900 border border-border rounded-2xl p-4 sm:p-6 mb-10 flex flex-col sm:flex-row gap-4"
+        >
+          <input
+            type="text"
+            placeholder="Nome do novo deck"
+            value={newDeckName}
+            onChange={e => setNewDeckName(e.target.value)}
+            className="flex-1 bg-slate-800 border border-border rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-primary text-white placeholder:text-slate-400"
+          />
 
-      <hr />
+          <button
+            type="submit"
+            disabled={creating}
+            className="bg-primary hover:bg-primaryHover disabled:opacity-50 px-6 py-3 rounded-xl font-medium transition"
+          >
+            {creating ? "Criando..." : "Criar deck"}
+          </button>
+        </form>
 
-      {decks.length === 0 && <p>Nenhum deck criado ainda</p>}
+        {decks.length === 0 && (
+          <div className="bg-slate-900 border border-border rounded-2xl p-10 text-center">
+            <p className="text-slate-400">
+              Nenhum deck criado ainda.
+            </p>
+          </div>
+        )}
 
-      <ul>
-        {decks.map(deck => (
-          <li key={deck.id}>
-            <Link to={`/decks/${deck.id}`}>
-              <strong>{deck.name}</strong>
-            </Link>{" "}
-            <button onClick={() => handleDeleteDeck(deck.id)}>
-              Deletar
-            </button>
-          </li>
-        ))}
-      </ul>
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {decks.map(deck => (
+            <div
+              key={deck.id}
+              className="bg-slate-900 border border-border rounded-2xl p-6 hover:border-primary transition group"
+            >
+              <Link to={`/decks/${deck.id}`}>
+                <h2 className="text-xl font-semibold group-hover:text-primary transition">
+                  {deck.name}
+                </h2>
+              </Link>
+
+              <button
+                onClick={() => handleDeleteDeck(deck.id)}
+                className="mt-4 text-sm text-red-400 hover:text-red-300 transition"
+              >
+                Deletar
+              </button>
+            </div>
+          ))}
+        </div>
+
+      </div>
     </div>
   );
 }
