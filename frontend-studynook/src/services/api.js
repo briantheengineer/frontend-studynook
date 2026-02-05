@@ -1,7 +1,7 @@
 import axios from "axios";
 
 export const api = axios.create({
-  baseURL: "https://backend-chat-production-9657.up.railway.app",
+  baseURL: import.meta.env.VITE_API_URL || "http://localhost:5000",
 });
 
 api.interceptors.request.use(config => {
