@@ -13,7 +13,7 @@ export function AuthProvider({ children }) {
       setIsAuthenticated(true);
       api.defaults.headers.common.Authorization = `Bearer ${token}`;
     }
-    setLoading(false); // terminou de checar token
+    setLoading(false);
   }, []);
 
   async function loginRequest(email, password) {
