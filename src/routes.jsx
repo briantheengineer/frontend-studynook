@@ -2,10 +2,10 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "./contexts/AuthContext";
 import PrivateLayout from "./layouts/PrivateLayout";
 import Login from "./pages/login";
-import Register from "./pages/Register";
+import Register from "./pages/register";
 import Dashboard from "./pages/dashboard";
 import Deck from "./pages/deck";
-import Flashcards from "./pages/Flashcards";
+import Flashcards from "./pages/flashcards";
 import Study from "./pages/Study";
 
 
