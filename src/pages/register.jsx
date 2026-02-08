@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { api } from "../services/api";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 function Register() {
+  const navigate = useNavigate();
+
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -10,6 +12,7 @@ function Register() {
 
   async function handleSubmit(e) {
     e.preventDefault();
+    setError(null);
 
     try {
       const response = await api.post("/auth/register", {
@@ -17,6 +20,9 @@ function Register() {
         email,
         password,
       });
+
+      localStorage.setItem("token", response.data.token);
+      navigate("/dashboard");
 
       console.log("Registro sucesso:", response.data);
     } catch (err) {
