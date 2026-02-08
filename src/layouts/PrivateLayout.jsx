@@ -1,14 +1,10 @@
-import { Outlet, Navigate } from "react-router-dom";
+import { Outlet } from "react-router-dom";
+import Header from "../components/Header";
 
 export default function PrivateLayout() {
-  const token = localStorage.getItem("token");
-
-  if (!token || token === "undefined") {
-    return <Navigate to="/login" replace />;
-  }
-
   return (
     <>
+      <Header />
       <main>
         <Outlet />
       </main>

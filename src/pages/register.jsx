@@ -2,53 +2,36 @@ import { useState } from "react";
 import { api } from "../services/api";
 import { Link, useNavigate } from "react-router-dom";
 
-function Register() {
+export default function Register() {
   const navigate = useNavigate();
-
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
 
   async function handleSubmit(e) {
-  e.preventDefault();
-  setError(null);
+    e.preventDefault();
+    setError(null);
 
-  try {
-    const response = await api.post("/auth/register", {
-      name,
-      email,
-      password,
-    });
+    try {
+      const response = await api.post("/auth/register", { name, email, password });
 
-    const token = response.data.token;
+      localStorage.setItem("token", response.data.token);
+      api.defaults.headers.Authorization = `Bearer ${response.data.token}`;
 
-    localStorage.setItem("token", token);
-    api.defaults.headers.Authorization = `Bearer ${token}`;
-    console.log("Registro sucesso:", response.data);
-
-    navigate("/dashboard");
-
-  } catch (err) {
-    const message =
-      err.response?.data?.error || "Erro ao registrar";
-    setError(message);
+      navigate("/dashboard");
+    } catch (err) {
+      const message = err.response?.data?.error || "Erro ao registrar";
+      setError(message);
+    }
   }
-}
-
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
       <div className="w-full max-w-md bg-white rounded-xl shadow-md p-6">
-        <h1 className="text-2xl font-bold text-center mb-6">
-          Criar conta
-        </h1>
+        <h1 className="text-2xl font-bold text-center mb-6">Criar conta</h1>
 
-        {error && (
-          <p className="mb-4 text-sm text-red-600 text-center">
-            {error}
-          </p>
-        )}
+        {error && <p className="mb-4 text-sm text-red-600 text-center">{error}</p>}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
@@ -85,10 +68,7 @@ function Register() {
 
         <p className="mt-6 text-center text-sm text-gray-600">
           Já tem uma conta?{" "}
-          <Link
-            to="/login"
-            className="text-indigo-600 hover:underline font-medium"
-          >
+          <Link to="/login" className="text-indigo-600 hover:underline font-medium">
             Faça login
           </Link>
         </p>
@@ -96,5 +76,3 @@ function Register() {
     </div>
   );
 }
-
-export default Register;
