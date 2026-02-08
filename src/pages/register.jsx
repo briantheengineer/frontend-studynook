@@ -11,26 +11,31 @@ function Register() {
   const [error, setError] = useState(null);
 
   async function handleSubmit(e) {
-    e.preventDefault();
-    setError(null);
+  e.preventDefault();
+  setError(null);
 
-    try {
-      const response = await api.post("/auth/register", {
-        name,
-        email,
-        password,
-      });
+  try {
+    const response = await api.post("/auth/register", {
+      name,
+      email,
+      password,
+    });
 
-      localStorage.setItem("token", response.data.token);
-      window.location.href = "/dashboard";
+    const token = response.data.token;
 
-      console.log("Registro sucesso:", response.data);
-    } catch (err) {
-      const message =
-        err.response?.data?.error || "Erro ao registrar";
-      setError(message);
-    }
+    localStorage.setItem("token", token);
+    api.defaults.headers.Authorization = `Bearer ${token}`;
+    console.log("Registro sucesso:", response.data);
+
+    navigate("/dashboard");
+
+  } catch (err) {
+    const message =
+      err.response?.data?.error || "Erro ao registrar";
+    setError(message);
   }
+}
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
