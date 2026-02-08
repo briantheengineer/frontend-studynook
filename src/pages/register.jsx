@@ -22,7 +22,7 @@ function Register() {
       });
 
       localStorage.setItem("token", response.data.token);
-      navigate("/dashboard");
+      window.location.href = "/dashboard";
 
       console.log("Registro sucesso:", response.data);
     } catch (err) {
