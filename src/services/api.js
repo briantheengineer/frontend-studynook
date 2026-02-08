@@ -1,7 +1,7 @@
 import axios from "axios";
 
 export const api = axios.create({
-  baseURL: "SEU_BACKEND_URL",
+  baseURL: "backend-chat-production-9657.up.railway.app",
 });
 
 const token = localStorage.getItem("token");
