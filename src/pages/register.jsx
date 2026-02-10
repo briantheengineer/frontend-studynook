@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useAuth } from "../contexts/AuthContext.jsx";
+import { useAuth } from "../contexts/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
 
 export default function Register() {
@@ -18,6 +18,7 @@ export default function Register() {
     try {
       await registerRequest(name, email, password);
       navigate("/dashboard");
+
     } catch (err) {
       const message = err.response?.data?.error || "Erro ao registrar";
       setError(message);
@@ -27,14 +28,10 @@ export default function Register() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
       <div className="w-full max-w-md bg-white rounded-xl shadow-md p-6">
-        <h1 className="text-2xl font-bold text-center mb-6">
-          Criar conta
-        </h1>
+        <h1 className="text-2xl font-bold text-center mb-6">Criar conta</h1>
 
         {error && (
-          <p className="mb-4 text-sm text-red-600 text-center">
-            {error}
-          </p>
+          <p className="mb-4 text-sm text-red-600 text-center">{error}</p>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -43,8 +40,7 @@ export default function Register() {
             placeholder="Nome"
             value={name}
             onChange={e => setName(e.target.value)}
-            required
-            className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full rounded-lg border border-gray-300 px-4 py-2"
           />
 
           <input
@@ -52,8 +48,7 @@ export default function Register() {
             placeholder="Email"
             value={email}
             onChange={e => setEmail(e.target.value)}
-            required
-            className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full rounded-lg border border-gray-300 px-4 py-2"
           />
 
           <input
@@ -61,13 +56,12 @@ export default function Register() {
             placeholder="Senha"
             value={password}
             onChange={e => setPassword(e.target.value)}
-            required
-            className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full rounded-lg border border-gray-300 px-4 py-2"
           />
 
           <button
             type="submit"
-            className="w-full bg-indigo-600 text-white py-2 rounded-lg font-semibold hover:bg-indigo-700 transition"
+            className="w-full bg-indigo-600 text-white py-2 rounded-lg font-semibold"
           >
             Cadastrar
           </button>
@@ -75,10 +69,7 @@ export default function Register() {
 
         <p className="mt-6 text-center text-sm text-gray-600">
           Já tem uma conta?{" "}
-          <Link
-            to="/login"
-            className="text-indigo-600 hover:underline font-medium"
-          >
+          <Link to="/login" className="text-indigo-600 font-medium">
             Faça login
           </Link>
         </p>
