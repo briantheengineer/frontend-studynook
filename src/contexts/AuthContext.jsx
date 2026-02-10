@@ -7,12 +7,6 @@ export function AuthProvider({ children }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  function applyToken(token) {
-    localStorage.setItem("token", token);
-    api.defaults.headers.common.Authorization = `Bearer ${token}`;
-    setIsAuthenticated(true);
-  }
-
   useEffect(() => {
     const token = localStorage.getItem("token");
 
@@ -26,10 +20,15 @@ export function AuthProvider({ children }) {
 
   async function loginRequest(email, password) {
     const response = await api.post("/auth/login", { email, password });
-    applyToken(response.data.token);
+
+    const token = response.data.token;
+
+    localStorage.setItem("token", token);
+    api.defaults.headers.common.Authorization = `Bearer ${token}`;
+
+    setIsAuthenticated(true);
   }
 
-  // 🔥 NOVO
   async function registerRequest(name, email, password) {
     const response = await api.post("/auth/register", {
       name,
@@ -37,7 +36,12 @@ export function AuthProvider({ children }) {
       password,
     });
 
-    applyToken(response.data.token);
+    const token = response.data.token;
+
+    localStorage.setItem("token", token);
+    api.defaults.headers.common.Authorization = `Bearer ${token}`;
+
+    setIsAuthenticated(true);
   }
 
   function logout() {
