@@ -7,22 +7,37 @@ export function AuthProvider({ children }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
 
+  function applyToken(token) {
+    localStorage.setItem("token", token);
+    api.defaults.headers.common.Authorization = `Bearer ${token}`;
+    setIsAuthenticated(true);
+  }
+
   useEffect(() => {
     const token = localStorage.getItem("token");
+
     if (token) {
-      setIsAuthenticated(true);
       api.defaults.headers.common.Authorization = `Bearer ${token}`;
+      setIsAuthenticated(true);
     }
+
     setLoading(false);
   }, []);
 
   async function loginRequest(email, password) {
     const response = await api.post("/auth/login", { email, password });
-    const token = response.data.token;
+    applyToken(response.data.token);
+  }
 
-    localStorage.setItem("token", token);
-    api.defaults.headers.common.Authorization = `Bearer ${token}`;
-    setIsAuthenticated(true);
+  // 🔥 NOVO
+  async function registerRequest(name, email, password) {
+    const response = await api.post("/auth/register", {
+      name,
+      email,
+      password,
+    });
+
+    applyToken(response.data.token);
   }
 
   function logout() {
@@ -32,7 +47,15 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, loginRequest, logout, loading }}>
+    <AuthContext.Provider
+      value={{
+        isAuthenticated,
+        loginRequest,
+        registerRequest,
+        logout,
+        loading,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

@@ -1,9 +1,11 @@
 import { useState } from "react";
-import { api } from "../services/api";
+import { useAuth } from "../context/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
 
 export default function Register() {
   const navigate = useNavigate();
+  const { registerRequest } = useAuth();
+
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -14,11 +16,7 @@ export default function Register() {
     setError(null);
 
     try {
-      const response = await api.post("/auth/register", { name, email, password });
-
-      localStorage.setItem("token", response.data.token);
-      api.defaults.headers.Authorization = `Bearer ${response.data.token}`;
-
+      await registerRequest(name, email, password);
       navigate("/dashboard");
     } catch (err) {
       const message = err.response?.data?.error || "Erro ao registrar";
