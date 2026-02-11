@@ -10,7 +10,8 @@ export async function createFlashcard(deckId, data) {
     `/decks/${deckId}/flashcards`,
     {
       front: data.front,
-      back: data.back
+      back: data.back,
+      imageUrl: data.imageUrl || null
     }
   );
   return res.data;
@@ -27,7 +28,8 @@ export async function updateFlashcard(deckId, flashcardId, data) {
     `/decks/${deckId}/flashcards/${flashcardId}`,
     {
       front: data.front,
-      back: data.back
+      back: data.back,
+      imageUrl: data.imageUrl || null
     }
   );
   return res.data;

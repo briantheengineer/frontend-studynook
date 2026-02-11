@@ -6,7 +6,6 @@ import Login from "./pages/login";
 import Register from "./pages/register";
 import Dashboard from "./pages/dashboard";
 import Deck from "./pages/deck";
-import Flashcards from "./pages/flashcards";
 import Study from "./pages/Study";
 
 function PrivateRoute({ children }) {
@@ -37,7 +36,6 @@ export function AppRoutes() {
       >
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/decks/:deckId" element={<Deck />} />
-        <Route path="/decks/:deckId/flashcards" element={<Flashcards />} />
         <Route path="/decks/:deckId/study" element={<Study />} />
       </Route>
 
