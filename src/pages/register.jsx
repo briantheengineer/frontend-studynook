@@ -20,9 +20,9 @@ export default function Register() {
     try {
       await registerRequest(name, email, password);
 
-      setTimeout(() => {
-        navigate("/dashboard");
-      }, 150);
+      await registerRequest(name, email, password);
+      navigate("/dashboard");
+
 
     } catch (err) {
       setError(err.response?.data?.error || "Erro ao criar conta");

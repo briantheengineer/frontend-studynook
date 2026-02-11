@@ -37,6 +37,8 @@ export function AuthProvider({ children }) {
     });
 
     const token = response.data.token;
+    
+    console.log("REGISTER RESPONSE:", response.data);
 
     localStorage.setItem("token", token);
     api.defaults.headers.common.Authorization = `Bearer ${token}`;
