@@ -10,69 +10,95 @@ export default function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e) {
     e.preventDefault();
     setError(null);
+    setLoading(true);
 
     try {
       await registerRequest(name, email, password);
-      navigate("/dashboard");
+
+      setTimeout(() => {
+        navigate("/dashboard");
+      }, 150);
 
     } catch (err) {
-      const message = err.response?.data?.error || "Erro ao registrar";
-      setError(message);
+      setError(err.response?.data?.error || "Erro ao criar conta");
+    } finally {
+      setLoading(false);
     }
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
-      <div className="w-full max-w-md bg-white rounded-xl shadow-md p-6">
-        <h1 className="text-2xl font-bold text-center mb-6">Criar conta</h1>
+    <div className="min-h-screen flex items-center justify-center bg-slate-950 px-4">
+      
+      <div className="w-full max-w-md bg-slate-900 text-white rounded-2xl shadow-2xl p-8 border border-slate-800">
+        
+        <h1 className="text-3xl font-bold text-center mb-2">
+          Criar conta 
+        </h1>
+
+        <p className="text-slate-400 text-center mb-6">
+          Comece a estudar de forma inteligente agora.
+        </p>
 
         {error && (
-          <p className="mb-4 text-sm text-red-600 text-center">{error}</p>
+          <div className="mb-4 bg-red-500/10 border border-red-500 text-red-400 p-3 rounded-lg text-sm text-center">
+            {error}
+          </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          
           <input
             type="text"
-            placeholder="Nome"
+            placeholder="Seu nome"
             value={name}
             onChange={e => setName(e.target.value)}
-            className="w-full rounded-lg border border-gray-300 px-4 py-2"
+            required
+            className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 focus:outline-none focus:border-indigo-500"
           />
 
           <input
             type="email"
-            placeholder="Email"
+            placeholder="Seu email"
             value={email}
             onChange={e => setEmail(e.target.value)}
-            className="w-full rounded-lg border border-gray-300 px-4 py-2"
+            required
+            className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 focus:outline-none focus:border-indigo-500"
           />
 
           <input
             type="password"
-            placeholder="Senha"
+            placeholder="Sua senha"
             value={password}
             onChange={e => setPassword(e.target.value)}
-            className="w-full rounded-lg border border-gray-300 px-4 py-2"
+            required
+            className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 focus:outline-none focus:border-indigo-500"
           />
 
           <button
             type="submit"
-            className="w-full bg-indigo-600 text-white py-2 rounded-lg font-semibold"
+            disabled={loading}
+            className="w-full bg-indigo-600 hover:bg-indigo-700 transition py-2 rounded-lg font-semibold disabled:opacity-50"
           >
-            Cadastrar
+            {loading ? "Criando conta..." : "Cadastrar"}
           </button>
+
         </form>
 
-        <p className="mt-6 text-center text-sm text-gray-600">
+        <p className="mt-6 text-center text-sm text-slate-400">
           Já tem uma conta?{" "}
-          <Link to="/login" className="text-indigo-600 font-medium">
-            Faça login
+          <Link
+            to="/login"
+            className="text-indigo-400 hover:text-indigo-300 font-medium"
+          >
+            Fazer login
           </Link>
         </p>
+
       </div>
     </div>
   );
