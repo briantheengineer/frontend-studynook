@@ -3,102 +3,61 @@ import { useAuth } from "../contexts/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
 
 export default function Register() {
-  const navigate = useNavigate();
   const { registerRequest } = useAuth();
+  const navigate = useNavigate();
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e) {
     e.preventDefault();
-    setError(null);
-    setLoading(true);
 
     try {
       await registerRequest(name, email, password);
+      navigate("/dashboard", { replace: true });
 
-      await registerRequest(name, email, password);
-      navigate("/dashboard");
-
-
-    } catch (err) {
-      setError(err.response?.data?.error || "Erro ao criar conta");
-    } finally {
-      setLoading(false);
+    } catch {
+      alert("Erro ao criar conta");
     }
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-950 px-4">
-      
-      <div className="w-full max-w-md bg-slate-900 text-white rounded-2xl shadow-2xl p-8 border border-slate-800">
-        
-        <h1 className="text-3xl font-bold text-center mb-2">
-          Criar conta 
-        </h1>
-
-        <p className="text-slate-400 text-center mb-6">
-          Comece a estudar de forma inteligente agora.
-        </p>
-
-        {error && (
-          <div className="mb-4 bg-red-500/10 border border-red-500 text-red-400 p-3 rounded-lg text-sm text-center">
-            {error}
-          </div>
-        )}
+    <div className="min-h-screen flex items-center justify-center bg-slate-950">
+      <div className="bg-slate-900 p-8 rounded-2xl w-96">
+        <h1 className="text-white text-2xl mb-6">Criar conta</h1>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          
           <input
-            type="text"
-            placeholder="Seu nome"
+            placeholder="Nome"
             value={name}
-            onChange={e => setName(e.target.value)}
-            required
-            className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 focus:outline-none focus:border-indigo-500"
+            onChange={(e) => setName(e.target.value)}
+            className="w-full p-3 rounded bg-slate-800 text-white"
           />
 
           <input
-            type="email"
-            placeholder="Seu email"
+            placeholder="Email"
             value={email}
-            onChange={e => setEmail(e.target.value)}
-            required
-            className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 focus:outline-none focus:border-indigo-500"
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full p-3 rounded bg-slate-800 text-white"
           />
 
           <input
             type="password"
-            placeholder="Sua senha"
+            placeholder="Senha"
             value={password}
-            onChange={e => setPassword(e.target.value)}
-            required
-            className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 focus:outline-none focus:border-indigo-500"
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full p-3 rounded bg-slate-800 text-white"
           />
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-indigo-600 hover:bg-indigo-700 transition py-2 rounded-lg font-semibold disabled:opacity-50"
-          >
-            {loading ? "Criando conta..." : "Cadastrar"}
+          <button className="w-full bg-indigo-600 p-3 rounded text-white">
+            Criar conta
           </button>
-
         </form>
 
-        <p className="mt-6 text-center text-sm text-slate-400">
-          Já tem uma conta?{" "}
-          <Link
-            to="/login"
-            className="text-indigo-400 hover:text-indigo-300 font-medium"
-          >
-            Fazer login
-          </Link>
+        <p className="text-slate-400 mt-4">
+          Já tem conta? <Link to="/login">Login</Link>
         </p>
-
       </div>
     </div>
   );

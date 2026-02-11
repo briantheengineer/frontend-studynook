@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { api } from "../services/api.js";
+import { api } from "../services/api";
 
-const AuthContext = createContext(null);
+const AuthContext = createContext({});
 
 export function AuthProvider({ children }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -11,7 +11,6 @@ export function AuthProvider({ children }) {
     const token = localStorage.getItem("token");
 
     if (token) {
-      api.defaults.headers.common.Authorization = `Bearer ${token}`;
       setIsAuthenticated(true);
     }
 
@@ -19,16 +18,17 @@ export function AuthProvider({ children }) {
   }, []);
 
   async function loginRequest(email, password) {
-    const response = await api.post("/auth/login", { email, password });
+    const response = await api.post("/auth/login", {
+      email,
+      password,
+    });
 
     const token = response.data.token;
 
     localStorage.setItem("token", token);
-    api.defaults.headers.common.Authorization = `Bearer ${token}`;
 
     setIsAuthenticated(true);
   }
-
   async function registerRequest(name, email, password) {
     const response = await api.post("/auth/register", {
       name,
@@ -37,18 +37,14 @@ export function AuthProvider({ children }) {
     });
 
     const token = response.data.token;
-    
-    console.log("REGISTER RESPONSE:", response.data);
 
     localStorage.setItem("token", token);
-    api.defaults.headers.common.Authorization = `Bearer ${token}`;
 
     setIsAuthenticated(true);
   }
 
   function logout() {
     localStorage.removeItem("token");
-    delete api.defaults.headers.common.Authorization;
     setIsAuthenticated(false);
   }
 

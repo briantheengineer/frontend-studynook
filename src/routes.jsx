@@ -13,10 +13,14 @@ function PrivateRoute({ children }) {
   const { isAuthenticated, loading } = useAuth();
 
   if (loading) return null;
-  if (!isAuthenticated) return <Navigate to="/login" replace />;
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
 
   return children;
 }
+
 
 export function AppRoutes() {
   return (
