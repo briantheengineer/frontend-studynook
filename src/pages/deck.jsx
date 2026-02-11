@@ -8,7 +8,6 @@ import {
 } from "../services/flashcards";
 import { getDeck } from "../services/decks";
 
-
 export default function Deck() {
   const { deckId } = useParams();
   const navigate = useNavigate();
@@ -22,6 +21,11 @@ export default function Deck() {
   const [editingCard, setEditingCard] = useState(null);
   const [deck, setDeck] = useState(null);
 
+ //for imagess
+  const [image, setImage] = useState(null);
+  const [preview, setPreview] = useState(null);
+  const [imageUrl, setImageUrl] = useState("");
+  const [uploading, setUploading] = useState(false);
 
   async function loadFlashcards() {
     try {
@@ -68,11 +72,14 @@ export default function Deck() {
         await updateFlashcard(deckId, editingId, { front, back });
         setEditingId(null);
       } else {
-        await createFlashcard(deckId, { front, back });
+        await createFlashcard(deckId, { front, back, imageUrl });
       }
 
       setFront("");
       setBack("");
+      setImage(null);
+      setPreview(null);
+      setImageUrl("");
       loadFlashcards();
     } catch {
       setError("Erro ao salvar flashcard");
@@ -88,22 +95,41 @@ export default function Deck() {
     }
   }
 
-useEffect(() => {
-  async function load() {
+  async function handleUpload(file) {
+    const formData = new FormData();
+    formData.append("image", file);
+
     try {
-      loadFlashcards();
-      const data = await getDeck(deckId);
-      setDeck(data);
-    } catch (err) {
-      console.error(err);
-      setError("Erro ao carregar deck");
+      setUploading(true);
+
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/upload`, {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json();
+      setImageUrl(data.url);
+    } catch {
+      setError("Erro ao enviar imagem");
+    } finally {
+      setUploading(false);
     }
   }
 
-  load();
-}, [deckId]);
+  useEffect(() => {
+    async function load() {
+      try {
+        loadFlashcards();
+        const data = await getDeck(deckId);
+        setDeck(data);
+      } catch (err) {
+        console.error(err);
+        setError("Erro ao carregar deck");
+      }
+    }
 
-
+    load();
+  }, [deckId]);
 
   return (
     <div className="min-h-screen bg-background text-white px-4 py-8">
@@ -112,7 +138,6 @@ useEffect(() => {
           <h1 className="text-3xl font-bold">
             {deck ? deck.name : "Carregando..."}
           </h1>
-
 
           <button
             onClick={() => navigate(`/decks/${deckId}/study`)}
@@ -146,12 +171,34 @@ useEffect(() => {
             className="bg-slate-800 border border-border rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-primary"
           />
 
+          <input
+            type="file"
+            accept="image/*"
+            onChange={async (e) => {
+              const file = e.target.files[0];
+              if (!file) return;
+
+              setImage(file);
+              setPreview(URL.createObjectURL(file));
+              await handleUpload(file);
+            }}
+          />
+
+          {preview && (
+            <img
+              src={preview}
+              className="w-full max-h-[250px] object-cover rounded-xl"
+              loading="lazy"
+            />
+          )}
+
           <div className="sm:col-span-2 flex flex-col sm:flex-row gap-3">
             <button
               type="submit"
               className="bg-primary hover:bg-primaryHover px-6 py-3 rounded-xl font-medium transition"
+              disabled={uploading}
             >
-              {editingId ? "Salvar edição" : "Criar flashcard"}
+              {uploading ? "Enviando imagem..." : editingId ? "Salvar edição" : "Criar flashcard"}
             </button>
 
             {editingId && (
@@ -161,6 +208,9 @@ useEffect(() => {
                   setEditingId(null);
                   setFront("");
                   setBack("");
+                  setImage(null);
+                  setPreview(null);
+                  setImageUrl("");
                 }}
                 className="bg-slate-700 hover:bg-slate-600 px-6 py-3 rounded-xl transition"
               >
@@ -182,6 +232,13 @@ useEffect(() => {
 
               <div>
                 <p className="font-semibold">{card.front}</p>
+                {card.imageUrl && (
+                  <img
+                    src={card.imageUrl}
+                    className="w-full max-h-[250px] object-cover rounded-xl mt-2"
+                    loading="lazy"
+                  />
+                )}
                 <p className="text-slate-400 mt-1">{card.back}</p>
               </div>
 
