@@ -13,12 +13,39 @@ export default function Deck() {
   const [answer, setAnswer] = useState("");
   const [error, setError] = useState("");
 
+  //for the imagess
+  const [image, setImage] = useState(null);
+  const [preview, setPreview] = useState(null);
+  const [imageUrl, setImageUrl] = useState("");
+  const [uploading, setUploading] = useState(false);
+
   async function loadFlashcards() {
     try {
       const data = await getFlashcardsByDeck(deckId);
       setFlashcards(data);
     } catch {
       setError("Erro ao carregar flashcards");
+    }
+  }
+
+  async function handleUpload(file) {
+    const formData = new FormData();
+    formData.append("image", file);
+
+    try {
+      setUploading(true);
+
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json();
+      setImageUrl(data.url);
+    } catch {
+      setError("Erro ao enviar imagem");
+    } finally {
+      setUploading(false);
     }
   }
 
@@ -29,11 +56,15 @@ export default function Deck() {
     try {
       await createFlashcard(deckId, {
         question,
-        answer
+        answer,
+        imageUrl
       });
 
       setQuestion("");
       setAnswer("");
+      setImage(null);
+      setPreview(null);
+      setImageUrl("");
       loadFlashcards();
     } catch {
       setError("Erro ao criar flashcard");
@@ -72,6 +103,27 @@ export default function Deck() {
             />
 
             <input
+              type="file"
+              accept="image/*"
+              onChange={async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                setImage(file);
+                setPreview(URL.createObjectURL(file));
+                await handleUpload(file);
+              }}
+            />
+
+            {preview && (
+              <img
+                src={preview}
+                className="w-full max-h-[250px] object-cover rounded-xl"
+                loading="lazy"
+              />
+            )}
+
+            <input
               placeholder="Resposta"
               value={answer}
               onChange={e => setAnswer(e.target.value)}
@@ -80,9 +132,10 @@ export default function Deck() {
 
             <button
               type="submit"
-              className="sm:col-span-2 bg-primary hover:bg-primaryHover px-6 py-3 rounded-xl font-medium transition"
+              disabled={uploading}
+              className="sm:col-span-2 bg-primary hover:bg-primaryHover px-6 py-3 rounded-xl font-medium transition disabled:opacity-50"
             >
-              Adicionar flashcard
+              {uploading ? "Enviando imagem..." : "Adicionar flashcard"}
             </button>
           </form>
         </div>
@@ -105,6 +158,15 @@ export default function Deck() {
                 <p className="font-semibold">
                   {card.front || card.question}
                 </p>
+
+                {card.imageUrl && (
+                  <img
+                    src={card.imageUrl}
+                    alt="flashcard"
+                    className="w-full max-h-[250px] object-cover rounded-xl"
+                    loading="lazy"
+                  />
+                )}
 
                 <p className="text-slate-400">
                   {card.back || card.answer}
