@@ -11,6 +11,7 @@ export function AuthProvider({ children }) {
     const token = localStorage.getItem("token");
 
     if (token) {
+      api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
       setIsAuthenticated(true);
     }
 
@@ -27,8 +28,11 @@ export function AuthProvider({ children }) {
 
     localStorage.setItem("token", token);
 
+    api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
     setIsAuthenticated(true);
   }
+
   async function registerRequest(name, email, password) {
     const response = await api.post("/auth/register", {
       name,
@@ -40,11 +44,14 @@ export function AuthProvider({ children }) {
 
     localStorage.setItem("token", token);
 
+    api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
     setIsAuthenticated(true);
   }
 
   function logout() {
     localStorage.removeItem("token");
+    delete api.defaults.headers.common["Authorization"];
     setIsAuthenticated(false);
   }
 
