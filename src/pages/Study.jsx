@@ -9,9 +9,19 @@ export default function Study() {
   const [index, setIndex] = useState(0);
   const [showAnswer, setShowAnswer] = useState(false);
   const [seconds, setSeconds] = useState(0);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getFlashcardsByDeck(deckId).then(setFlashcards);
+    async function load() {
+      try {
+        const data = await getFlashcardsByDeck(deckId);
+        setFlashcards(data);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    load();
   }, [deckId]);
 
   useEffect(() => {
@@ -24,10 +34,18 @@ export default function Study() {
     return () => clearInterval(timer);
   }, [showAnswer]);
 
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background text-white">
+        Carregando flashcards...
+      </div>
+    );
+  }
+
   if (flashcards.length === 0) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-100">
-        <p className="text-gray-600">Sem flashcards</p>
+      <div className="min-h-screen flex items-center justify-center bg-background text-white">
+        Sem flashcards neste deck.
       </div>
     );
   }
@@ -41,30 +59,41 @@ export default function Study() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 px-4 py-6 flex flex-col items-center">
-      <div className="w-full max-w-lg">
+    <div className="min-h-screen bg-background text-white px-4 py-8 flex flex-col items-center">
+      <div className="w-full max-w-2xl">
+
         <Link
           to={`/decks/${deckId}`}
-          className="inline-block mb-4 text-indigo-600 font-medium hover:underline"
+          className="inline-block mb-6 text-primary hover:underline"
         >
-          Voltar ao deck
+          ← Voltar ao deck
         </Link>
 
-        <h2 className="text-2xl font-bold text-center mb-2">
+        <h2 className="text-3xl font-bold text-center mb-2">
           Modo Estudo
         </h2>
 
-        <p className="text-center text-sm text-gray-600 mb-6">
-          Tempo: {seconds}s
+        <p className="text-center text-sm text-slate-400 mb-8">
+          Tempo nesta carta: <span className="text-primary font-semibold">{seconds}s</span>
         </p>
 
-        <div className="bg-white rounded-xl shadow-md p-6 mb-6 min-h-[200px] flex flex-col justify-center">
-          <h3 className="text-lg font-semibold text-center">
+        <div className="bg-slate-900 border border-border rounded-2xl shadow-xl p-8 mb-6 min-h-[350px] flex flex-col justify-center transition-all">
+
+          <h3 className="text-2xl font-semibold text-center break-words">
             {card.front}
           </h3>
 
+          {card.imageUrl && (
+            <img
+              src={card.imageUrl}
+              alt="Flashcard"
+              className="w-full max-h-[320px] object-contain rounded-xl mt-6"
+              loading="lazy"
+            />
+          )}
+
           {showAnswer && (
-            <p className="mt-4 text-center text-gray-700">
+            <p className="mt-6 text-center text-slate-300 text-lg break-words">
               {card.back}
             </p>
           )}
@@ -73,18 +102,22 @@ export default function Study() {
         {!showAnswer ? (
           <button
             onClick={() => setShowAnswer(true)}
-            className="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition"
+            className="w-full bg-primary hover:bg-primaryHover py-4 rounded-xl font-semibold text-lg transition"
           >
             Mostrar resposta
           </button>
         ) : (
           <button
             onClick={nextCard}
-            className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition"
+            className="w-full bg-green-600 hover:bg-green-500 py-4 rounded-xl font-semibold text-lg transition"
           >
-            Próximo
+            Próximo flashcard
           </button>
         )}
+
+        <p className="text-center text-xs text-slate-500 mt-4">
+          Cartão {index + 1} de {flashcards.length}
+        </p>
       </div>
     </div>
   );

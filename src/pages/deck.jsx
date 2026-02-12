@@ -21,7 +21,6 @@ export default function Deck() {
   const [editingCard, setEditingCard] = useState(null);
   const [deck, setDeck] = useState(null);
 
- //for imagess
   const [image, setImage] = useState(null);
   const [preview, setPreview] = useState(null);
   const [imageUrl, setImageUrl] = useState("");
@@ -40,6 +39,8 @@ export default function Deck() {
     setEditingCard(card);
     setFront(card.front);
     setBack(card.back);
+    setImageUrl(card.imageUrl || "");
+    setPreview(card.imageUrl || null);
     setIsEditOpen(true);
   }
 
@@ -47,11 +48,19 @@ export default function Deck() {
     e.preventDefault();
 
     try {
-      await updateFlashcard(deckId, editingCard.id, { front, back });
+      await updateFlashcard(deckId, editingCard.id, {
+        front,
+        back,
+        imageUrl
+      });
+
       setIsEditOpen(false);
       setEditingCard(null);
       setFront("");
       setBack("");
+      setImage(null);
+      setPreview(null);
+      setImageUrl("");
       loadFlashcards();
     } catch {
       setError("Erro ao editar flashcard");
@@ -69,7 +78,7 @@ export default function Deck() {
 
     try {
       if (editingId) {
-        await updateFlashcard(deckId, editingId, { front, back });
+        await updateFlashcard(deckId, editingId, { front, back, imageUrl });
         setEditingId(null);
       } else {
         await createFlashcard(deckId, { front, back, imageUrl });
@@ -153,6 +162,7 @@ export default function Deck() {
           </div>
         )}
 
+        {/* FORM */}
         <form
           onSubmit={handleSubmit}
           className="bg-slate-900 border border-border rounded-2xl p-4 sm:p-6 grid gap-4 sm:grid-cols-2"
@@ -171,25 +181,48 @@ export default function Deck() {
             className="bg-slate-800 border border-border rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-primary"
           />
 
-          <input
-            type="file"
-            accept="image/*"
-            onChange={async (e) => {
-              const file = e.target.files[0];
-              if (!file) return;
+          {/* BOTÃO BONITO */}
+          <label className="cursor-pointer bg-slate-800 border border-dashed border-slate-600 hover:border-primary rounded-xl flex flex-col items-center justify-center h-[120px] transition">
+            <span className="text-sm text-slate-400">
+              {uploading ? "Enviando..." : "Clique para enviar uma imagem"}
+            </span>
 
-              setImage(file);
-              setPreview(URL.createObjectURL(file));
-              await handleUpload(file);
-            }}
-          />
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                setImage(file);
+                setPreview(URL.createObjectURL(file));
+                await handleUpload(file);
+              }}
+            />
+          </label>
 
           {preview && (
-            <img
-              src={preview}
-              className="w-full max-h-[250px] object-cover rounded-xl"
-              loading="lazy"
-            />
+            <div className="relative">
+              <img
+                src={preview}
+                className="w-full max-h-[250px] object-cover rounded-xl"
+                loading="lazy"
+              />
+
+              {/* remover imagem */}
+              <button
+                type="button"
+                onClick={() => {
+                  setPreview(null);
+                  setImage(null);
+                  setImageUrl("");
+                }}
+                className="absolute top-2 right-2 bg-black/70 hover:bg-black text-white text-xs px-3 py-1 rounded-lg"
+              >
+                Remover
+              </button>
+            </div>
           )}
 
           <div className="sm:col-span-2 flex flex-col sm:flex-row gap-3">
@@ -200,26 +233,10 @@ export default function Deck() {
             >
               {uploading ? "Enviando imagem..." : editingId ? "Salvar edição" : "Criar flashcard"}
             </button>
-
-            {editingId && (
-              <button
-                type="button"
-                onClick={() => {
-                  setEditingId(null);
-                  setFront("");
-                  setBack("");
-                  setImage(null);
-                  setPreview(null);
-                  setImageUrl("");
-                }}
-                className="bg-slate-700 hover:bg-slate-600 px-6 py-3 rounded-xl transition"
-              >
-                Cancelar
-              </button>
-            )}
           </div>
         </form>
 
+        {/* CARDS */}
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {flashcards.map((card, index) => (
             <div
@@ -232,6 +249,7 @@ export default function Deck() {
 
               <div>
                 <p className="font-semibold">{card.front}</p>
+
                 {card.imageUrl && (
                   <img
                     src={card.imageUrl}
@@ -239,6 +257,7 @@ export default function Deck() {
                     loading="lazy"
                   />
                 )}
+
                 <p className="text-slate-400 mt-1">{card.back}</p>
               </div>
 
@@ -262,6 +281,7 @@ export default function Deck() {
         </div>
       </div>
 
+      {/* MODAL EDITAR */}
       {isEditOpen && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center px-4 z-50">
           <div className="bg-slate-900 border border-border rounded-2xl w-full max-w-md p-6 space-y-4">
@@ -279,6 +299,46 @@ export default function Deck() {
                 onChange={e => setBack(e.target.value)}
                 className="w-full bg-slate-800 border border-border rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-primary"
               />
+
+              {/* upload no editar */}
+              <label className="cursor-pointer bg-slate-800 border border-dashed border-slate-600 hover:border-primary rounded-xl flex flex-col items-center justify-center h-[100px] transition">
+                <span className="text-sm text-slate-400">
+                  Trocar imagem
+                </span>
+
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={async (e) => {
+                    const file = e.target.files[0];
+                    if (!file) return;
+
+                    setPreview(URL.createObjectURL(file));
+                    await handleUpload(file);
+                  }}
+                />
+              </label>
+
+              {preview && (
+                <div className="relative">
+                  <img
+                    src={preview}
+                    className="w-full max-h-[200px] object-cover rounded-xl"
+                  />
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setPreview(null);
+                      setImageUrl("");
+                    }}
+                    className="absolute top-2 right-2 bg-black/70 text-xs px-3 py-1 rounded-lg"
+                  >
+                    Remover
+                  </button>
+                </div>
+              )}
 
               <div className="flex gap-3">
                 <button
