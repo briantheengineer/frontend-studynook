@@ -34,3 +34,19 @@ export async function updateFlashcard(deckId, flashcardId, data) {
   );
   return res.data;
 }
+
+export async function reviewFlashcard(id, quality) {
+  const res = await fetch(
+    `${import.meta.env.VITE_API_URL}/flashcards/${id}/review`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+      body: JSON.stringify({ quality }),
+    }
+  );
+
+  return res.json();
+}
